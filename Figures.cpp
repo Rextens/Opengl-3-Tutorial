@@ -2,7 +2,7 @@
 
 
 
-Figures::Figures(std::vector<GLfloat> &board)
+Figures::Figures(std::vector<GLfloat> &boards)
 {
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
