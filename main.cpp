@@ -2,6 +2,7 @@
 #include <GLFW\glfw3.h>
 #include <iostream>
 #include "Figure.h"
+#include "Shaders.h"
 
 int main()
 {
@@ -21,9 +22,19 @@ int main()
 	Vertices triangle("firstTriangle.raw");
 	Figure triangleFigure(triangle);
 
+	Shaders shaders;
+
+	GLint shadersProgram = shaders.loadShaders("vertexShader.vert", "fragmentShader.frag");
+	GLint positon = shaders.findUniform("position", shadersProgram);
+	GLint colour = shaders.findUniform("colour", shadersProgram);
+
 	glFrontFace(GL_CCW);
 	while (!glfwWindowShouldClose(window))
 	{
+		glUseProgram(shadersProgram);
+		shaders.sendUniform(0.1, positon);
+		shaders.sendUniform(glm::vec3(0.5, 0.2, 0.6), colour);
+
 		triangleFigure.draw(triangle);
 
 		glfwSwapBuffers(window);
