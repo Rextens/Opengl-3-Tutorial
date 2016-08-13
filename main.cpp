@@ -1,52 +1,44 @@
-#include <GL/glew.h>
+#include <GL\glew.h>
 #include <GLFW\glfw3.h>
-#include <glm.hpp>
-
 #include <iostream>
-#include "Figures.h"
+#include "Figure.h"
 #include "Shaders.h"
 
 int main()
 {
-	if (!glfwInit())
+	if (glfwInit() == 0)
 	{
 		std::cout << "Error init glfw" << std::endl;
-
-		return 0;
 	}
-	
-	GLFWwindow *window = glfwCreateWindow(800, 600, "Opengl 1", NULL, NULL);
+
+	GLFWwindow *window = glfwCreateWindow(640, 480, "Opengl 3 Tutorial", nullptr, nullptr);
 	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
 	{
 		std::cout << "Error init glew" << std::endl;
-
-		return 0;
 	}
-	Shaders shader;
-	GLuint shaderProgram = shader.loadShaders("vertexShader.vert", "fragmentShader.frag");
-	GLint tranformUniform = shader.loadUniform(shaderProgram, "trans");
-	GLint colourUniform = shader.loadUniform(shaderProgram, "bonusColour");
+	Shaders shaders;
+	Slots slots(shaders);
 
-	Vertices vertices("arrays.txt");
-	Figures figures(vertices.board);
+	Vertices triangle("firstTriangle.raw");
+	Figure triangleFigure(triangle);
+	Figure triangleFigure2(triangle);
 
+	glFrontFace(GL_CCW);
 	while (!glfwWindowShouldClose(window))
 	{
-		glClearColor(0.5, 0.3, 0.3, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(Slots::shadersProgram);
 
-		glUseProgram(shaderProgram);
-
-		shader.sendUniform(glm::vec2(0.5, 0.3), tranformUniform);
-		shader.sendUniform(glm::vec3(0.6, 0.3, 0.1), colourUniform);
-
-		figures.draw();
+		triangleFigure.setPosition(glm::vec3(0.0f, 0.3f, 1.0f));
+		triangleFigure.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
+		triangleFigure.draw(triangle);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
 	glfwDestroyWindow(window);
-	glfwTerminate();
+
+	return 0;
 }
