@@ -10,51 +10,42 @@ Shaders::Shaders()
 Shaders::~Shaders()
 {
 }
-
-GLuint Shaders::loadShaders(std::string vertexShader, std::string fragmentShader)
+GLint Shaders::loadShaders(std::string vertexShader, std::string fragmentShader)
 {
 	GLuint vertexShaderId = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fragmentShaderId = glCreateShader(GL_FRAGMENT_SHADER);
 
 	std::string vertexShaderData;
+
 	std::ifstream vertexShaderFile(vertexShader);
 
-	
-	if (!vertexShaderFile)
+	if (vertexShaderFile)
 	{
-		std::cout << "Can't open vertex shader" << std::endl;
-
-		return 0;
+		std::string line;
+		while (std::getline(vertexShaderFile, line))
+		{
+			vertexShaderData += "\n" + line;
+		}
 	}
-	
-	std::string line;
-	while (std::getline(vertexShaderFile, line))
-	{
-		vertexShaderData += "\n" + line;
-	}
-	vertexShaderFile.close();
 
 	std::string fragmentShaderData;
+
 	std::ifstream fragmentShaderFile(fragmentShader);
 
-	if (!fragmentShaderFile)
+	if (fragmentShaderFile)
 	{
-		std::cout << "Can't open fragment shader" << std::endl;
-
-		return 0;
+		std::string line;
+		while (std::getline(fragmentShaderFile, line))
+		{
+			fragmentShaderData += "\n" + line;
+		}
 	}
-	std::string line2;
-	while (std::getline(fragmentShaderFile, line2))
-	{
-		fragmentShaderData += "\n" + line2;
-	}
-	fragmentShaderFile.close();
 
 	const char * vertexPtr = vertexShaderData.c_str();
 	const char * fragmentPtr = fragmentShaderData.c_str();
 
-	glShaderSource(vertexShaderId, 1, &vertexPtr, NULL);
-	glShaderSource(fragmentShaderId, 1, &fragmentPtr, NULL);
+	glShaderSource(vertexShaderId, 1, &vertexPtr, nullptr);
+	glShaderSource(fragmentShaderId, 1, &fragmentPtr, nullptr);
 
 	glCompileShader(vertexShaderId);
 	glCompileShader(fragmentShaderId);
@@ -63,10 +54,32 @@ GLuint Shaders::loadShaders(std::string vertexShader, std::string fragmentShader
 
 	glAttachShader(shaderProgram, vertexShaderId);
 	glAttachShader(shaderProgram, fragmentShaderId);
+
 	glLinkProgram(shaderProgram);
 
 	glDeleteShader(vertexShaderId);
 	glDeleteShader(fragmentShaderId);
 
 	return shaderProgram;
+}
+GLint Shaders::findUniform(std::string uniformName, GLint &program)
+{
+	GLint uniform = glGetUniformLocation(program, uniformName.c_str());
+
+	if (uniform == -1)
+	{
+		std::cout << "Can't find uniform " << uniformName.c_str() << std::endl;
+	}
+	else
+	{
+		return uniform;
+	}
+}
+void Shaders::sendUniform(float value, GLint &program)
+{
+	glUniform1f(program, value);
+}
+void Shaders::sendUniform(glm::vec3 &value, GLint &program)
+{
+	glUniform3f(program, value.x, value.y, value.z);
 }
