@@ -1,9 +1,12 @@
 #version 330
-layout (location = 0) in vec3 vp;
 
-uniform vec2 trans;
+layout(location = 0) in vec3 vp;
+
+uniform mat4 transforms;
+uniform mat4 view;
+uniform mat4 perspective;
 
 void main()
 {
-    gl_Position = vec4(vp.x + trans.x, vp.y + trans.y, vp.z, 1.0);
+	gl_Position = perspective * view * transforms * vec4(vp.x, vp.y, vp.z,  1.0);
 }
