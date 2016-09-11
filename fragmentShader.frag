@@ -2,9 +2,11 @@
 
 out vec4 fragColour;
 
-uniform vec3 bonusColour;
+in vec2 textureCoordinates;
+uniform sampler2D basicTexture;
 
 void main()
 {
-    fragColour = vec4(bonusColour.x, bonusColour.y, bonusColour.z, 1.0);
+	vec4 texel = texture(basicTexture, textureCoordinates);
+	fragColour = texel;
 }
