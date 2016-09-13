@@ -1,52 +1,53 @@
-#include <GL/glew.h>
+#include <GL\glew.h>
 #include <GLFW\glfw3.h>
-#include <glm.hpp>
-
 #include <iostream>
-#include "Figures.h"
+#include "Figure.h"
 #include "Shaders.h"
+#include "Window.h"
+#include "Textures.h"
+#include <FreeImage.h>
 
 int main()
 {
-	if (!glfwInit())
+	Window window(640, 480, "Kurs Opengl 3", false);
+
+	Shaders shaders;
+	Slots slots(shaders);
+
+	glActiveTexture(GL_TEXTURE0);
+	Textures("texture.jpg");
+
+	Vertices textureVert("textureCoords.txt");
+	Vertices triangle("firstTriangle.raw");
+	Figure triangleFigure(triangle, textureVert);
+
+	glFrontFace(GL_CW);
+
+	float i = 0;
+
+	while (!glfwWindowShouldClose(Window::window))
 	{
-		std::cout << "Error init glfw" << std::endl;
-
-		return 0;
-	}
-	
-	GLFWwindow *window = glfwCreateWindow(800, 600, "Opengl 1", NULL, NULL);
-	glfwMakeContextCurrent(window);
-
-	if (glewInit() != GLEW_OK)
-	{
-		std::cout << "Error init glew" << std::endl;
-
-		return 0;
-	}
-	Shaders shader;
-	GLuint shaderProgram = shader.loadShaders("vertexShader.vert", "fragmentShader.frag");
-	GLint tranformUniform = shader.loadUniform(shaderProgram, "trans");
-	GLint colourUniform = shader.loadUniform(shaderProgram, "bonusColour");
-
-	Vertices vertices("arrays.txt");
-	Figures figures(vertices.board);
-
-	while (!glfwWindowShouldClose(window))
-	{
-		glClearColor(0.5, 0.3, 0.3, 1.0);
+		i += 0.0001;
+		glClearColor(0.0, 0.0, 0.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(Slots::shadersProgram);
 
-		glUseProgram(shaderProgram);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		shader.sendUniform(glm::vec2(0.5, 0.3), tranformUniform);
-		shader.sendUniform(glm::vec3(0.6, 0.3, 0.1), colourUniform);
+		triangleFigure.setPosition(glm::vec3(0.0f, 0.3f, 1.0f));
+		triangleFigure.setScale(glm::vec3(0.5f, 0.5f, 0.5f));
+		triangleFigure.setColour(glm::vec4(0.5f, i, 0.4f, 1.0f));
+		triangleFigure.draw(shaders, 0);
 
-		figures.draw();
+		Window::moveCamera(shaders);
+		Window::closeWindow();
 
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(Window::window);
 		glfwPollEvents();
 	}
-	glfwDestroyWindow(window);
-	glfwTerminate();
+
+	glfwDestroyWindow(Window::window);
+
+	return 0;
 }
